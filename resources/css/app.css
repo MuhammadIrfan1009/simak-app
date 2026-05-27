@@ -1,3 +1,51 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+
+@source "../**/*.blade.php";
+@source "../**/*.js";
+
+@theme {
+    --color-primary: #0D9488;
+    --color-primary-dark: #0F766E;
+    --color-secondary: #6366F1;
+    --font-sans: 'Inter', sans-serif;
+}
+
+/* Custom components untuk reusable styles */
+@layer components {
+    .btn {
+        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    }
+
+    .btn-primary {
+        @apply bg-primary text-white hover:bg-primary-dark;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+    }
+
+    .btn-danger {
+        @apply bg-red-500 text-white hover:bg-red-600;
+    }
+
+    .card {
+        @apply bg-white rounded-lg shadow p-6;
+    }
+
+    .card-hover {
+        @apply bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow;
+    }
+
+    .form-input {
+        @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition;
+    }
+
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+    }
+
+    .table-container {
+        @apply overflow-x-auto;
+    }
+}
