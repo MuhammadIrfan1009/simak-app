@@ -6,20 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('mata_kuliahs', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_mk')->unique();  // Kode Mata Kuliah
+            $table->string('nama_mk');
+            $table->integer('sks');  // Satuan Kredit Semester
+            $table->integer('semester');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');  // Dosen pengampu
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('mata_kuliahs');

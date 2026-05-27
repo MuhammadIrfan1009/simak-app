@@ -3,23 +3,39 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Mahasiswa;
+use App\Models\MataKuliah;
+use App\Models\Jadwal;
+use App\Models\Nilai;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create or update admin user to avoid duplicate entries
+        User::updateOrCreate(
+            ['email' => 'admin@simak.com'],
+            [
+                'name' => 'Admin',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        User::factory(3)->create(['role' => 'dosen']);
+        User::factory(20)->create(['role' => 'mahasiswa']);
+
+        // Create mahasiswa
+        Mahasiswa::factory(50)->create();
+
+        // Create mata kuliah
+        MataKuliah::factory(15)->create();
+
+        // Create jadwal
+        Jadwal::factory(30)->create();
+
+        // Create nilai
+        Nilai::factory(200)->create();
     }
 }

@@ -1,0 +1,182 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Nilai;
+use App\Models\Mahasiswa;
+use App\Models\MataKuliah;
+use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+class NilaiController extends Controller
+{
+    /**
+     * Tampilkan semua data nilai
+     */
+    public function index()
+    {
+        $nilais = Nilai::with(['mahasiswa', 'mataKuliah'])
+            ->latest()
+            ->paginate(15);
+
+        return view('nilai.index', compact('nilais'));
+    }
+
+    /**
+     * Form tambah nilai
+     */
+    public function create()
+    {
+        $mahasiswas = Mahasiswa::all();
+        $mataKuliahs = MataKuliah::all();
+
+        return view('nilai.create', compact('mahasiswas', 'mataKuliahs'));
+    }
+
+    /**
+     * Simpan nilai baru
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'mahasiswa_id'   => 'required|exists:mahasiswas,id',
+            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
+            'semester'       => 'required|integer|min:1|max:14',
+            'tahun_akademik' => 'required|string|max:20',
+            'nilai_tugas'    => 'required|numeric|min:0|max:100',
+            'nilai_uts'      => 'required|numeric|min:0|max:100',
+            'nilai_uas'      => 'required|numeric|min:0|max:100',
+        ]);
+
+        // Hitung nilai akhir
+        $nilaiAkhir = Nilai::hitungNilaiAkhir(
+            $validated['nilai_tugas'],
+            $validated['nilai_uts'],
+            $validated['nilai_uas']
+        );
+
+        // Konversi grade
+        $grade = Nilai::nilaiKeGrade($nilaiAkhir);
+
+        // Simpan data
+        Nilai::create([
+            ...$validated,
+            'nilai_akhir' => $nilaiAkhir,
+            'grade'       => $grade,
+        ]);
+
+        return redirect()
+            ->route('nilai.index')
+            ->with('success', 'Data nilai berhasil ditambahkan.');
+    }
+
+    /**
+     * Form edit nilai
+     */
+    public function edit(Nilai $nilai)
+    {
+        $mahasiswas = Mahasiswa::all();
+        $mataKuliahs = MataKuliah::all();
+
+        return view(
+            'nilai.edit',
+            compact('nilai', 'mahasiswas', 'mataKuliahs')
+        );
+    }
+
+    /**
+     * Update data nilai
+     */
+    public function update(Request $request, Nilai $nilai)
+    {
+        $validated = $request->validate([
+            'nilai_tugas' => 'required|numeric|min:0|max:100',
+            'nilai_uts'   => 'required|numeric|min:0|max:100',
+            'nilai_uas'   => 'required|numeric|min:0|max:100',
+        ]);
+
+        // Hitung ulang nilai akhir
+        $nilaiAkhir = Nilai::hitungNilaiAkhir(
+            $validated['nilai_tugas'],
+            $validated['nilai_uts'],
+            $validated['nilai_uas']
+        );
+
+        // Update data
+        $nilai->update([
+            ...$validated,
+            'nilai_akhir' => $nilaiAkhir,
+            'grade'       => Nilai::nilaiKeGrade($nilaiAkhir),
+        ]);
+
+        return redirect()
+            ->route('nilai.index')
+            ->with('success', 'Data nilai berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus nilai
+     */
+    public function destroy(Nilai $nilai)
+    {
+        $nilai->delete();
+
+        return redirect()
+            ->route('nilai.index')
+            ->with('success', 'Data nilai berhasil dihapus.');
+    }
+
+    /**
+     * Rekap nilai mahasiswa per semester
+     */
+    public function rekapNilai(Request $request)
+    {
+        $request->validate([
+            'mahasiswa_id' => 'required|exists:mahasiswas,id',
+            'semester'     => 'required|integer',
+        ]);
+
+        $mahasiswa = Mahasiswa::findOrFail($request->mahasiswa_id);
+
+        $nilais = $mahasiswa->nilais()
+            ->where('semester', $request->semester)
+            ->with('mataKuliah')
+            ->get();
+
+        $rataRata = $nilais->avg('nilai_akhir');
+
+        return view(
+            'nilai.rekap',
+            compact('mahasiswa', 'nilais', 'rataRata')
+        );
+    }
+
+    /**
+     * Export rekap nilai ke PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $request->validate([
+            'mahasiswa_id' => 'required|exists:mahasiswas,id',
+            'semester'     => 'required|integer',
+        ]);
+
+        $mahasiswa = Mahasiswa::findOrFail($request->mahasiswa_id);
+
+        $nilais = $mahasiswa->nilais()
+            ->where('semester', $request->semester)
+            ->with('mataKuliah')
+            ->get();
+
+        $rataRata = $nilais->avg('nilai_akhir');
+
+        $pdf = Pdf::loadView(
+            'nilai.pdf',
+            compact('mahasiswa', 'nilais', 'rataRata')
+        );
+
+        return $pdf->download(
+            'Rekap_Nilai_' . $mahasiswa->nim . '.pdf'
+        );
+    }
+}

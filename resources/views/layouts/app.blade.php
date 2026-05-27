@@ -1,36 +1,76 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'SIMAK - Sistem Manajemen Akademik')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar Navigation -->
+    <div class="flex h-screen">
+        <nav class="w-64 bg-gray-900 text-white shadow-lg">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-800">
+                <h1 class="text-2xl font-bold">🎓 SIMAK</h1>
+                <p class="text-gray-400 text-sm mt-1">Sistem Manajemen Akademik</p>
+            </div>
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+            <!-- Menu Items -->
+            <ul class="space-y-2 p-4">
+                <li>
+                    <a href="{{ route('dashboard') }}" 
+                       class="block px-4 py-3 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-primary text-white' : 'hover:bg-gray-800' }} transition">
+                        📊 Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('mahasiswa.index') }}" 
+                       class="block px-4 py-3 rounded-lg {{ request()->routeIs('mahasiswa.*') ? 'bg-primary' : 'hover:bg-gray-800' }} transition">
+                        👥 Mahasiswa
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('mata-kuliah.index') }}" 
+                       class="block px-4 py-3 rounded-lg {{ request()->routeIs('mata-kuliah.*') ? 'bg-primary' : 'hover:bg-gray-800' }} transition">
+                        📚 Mata Kuliah
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('jadwal.index') }}" 
+                       class="block px-4 py-3 rounded-lg {{ request()->routeIs('jadwal.*') ? 'bg-primary' : 'hover:bg-gray-800' }} transition">
+                        🕐 Jadwal
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('nilai.index') }}" 
+                       class="block px-4 py-3 rounded-lg {{ request()->routeIs('nilai.*') ? 'bg-primary' : 'hover:bg-gray-800' }} transition">
+                        📝 Nilai
+                    </a>
+                </li>
+            </ul>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+            <!-- User Profile -->
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800 bg-gray-800">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-semibold text-white text-sm">{{ auth()->user()->name }}</p>
+                        <p class="text-gray-400 text-xs">{{ auth()->user()->role }}</p>
                     </div>
-                </header>
-            @endisset
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="text-gray-400 hover:text-white transition">
+                            🚪
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </nav>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            @yield('content')
+        </main>
+    </div>
+</body>
 </html>

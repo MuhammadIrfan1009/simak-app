@@ -1,15 +1,53 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 
 @source "../**/*.blade.php";
 @source "../**/*.js";
 
 @theme {
-    --color-primary: #0D9488;
+    --color-primary: #0D9488;      
     --color-primary-dark: #0F766E;
     --color-secondary: #6366F1;
     --font-sans: 'Inter', sans-serif;
 }
+
+/* Mobile-first Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -16rem;
+        top: 0;
+        z-index: 40;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        @apply bg-gray-900 text-gray-100;
+    }
+
+    .card {
+        @apply bg-gray-800 text-gray-100;
+    }
+}
+
+
+@media (prefers-color-scheme: dark) {
+    body { @apply bg-gray-900 text-gray-100; }
+    .card { @apply bg-gray-800; }
+}
+
 
 /* Custom components untuk reusable styles */
 @layer components {
