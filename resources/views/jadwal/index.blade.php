@@ -3,12 +3,22 @@
 @section('content')
 <div class="py-12">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
             <div>
                 <h1 class="text-4xl font-bold text-gray-900">🕐 Data Jadwal</h1>
-                <p class="text-gray-500 mt-1">Kelola jadwal mata kuliah di sini.</p>
+                <p class="text-gray-500 mt-1">Cari dan lihat jadwal mata kuliah Anda.</p>
             </div>
-            <a href="{{ route('jadwal.create') }}" class="btn btn-primary">➕ Tambah Jadwal</a>
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
+                <form action="{{ route('jadwal.index') }}" method="GET" class="flex gap-2 w-full sm:w-auto">
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari hari, ruangan, mata kuliah" class="form-input" />
+                    <button type="submit" class="btn btn-secondary">Cari</button>
+                </form>
+
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('jadwal.create') }}" class="btn btn-primary">➕ Tambah Jadwal</a>
+                @endif
+            </div>
         </div>
 
         @if ($message = Session::get('success'))
@@ -41,12 +51,14 @@
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-3">
                                         <a href="{{ route('jadwal.show', $jadwal) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">👁️ Lihat</a>
-                                        <a href="{{ route('jadwal.edit', $jadwal) }}" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">✏️ Edit</a>
-                                        <form action="{{ route('jadwal.destroy', $jadwal) }}" method="POST" class="inline" onsubmit="return confirm('Hapus jadwal ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">🗑️ Hapus</button>
-                                        </form>
+                                        @if(auth()->user()->isAdmin())
+                                            <a href="{{ route('jadwal.edit', $jadwal) }}" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">✏️ Edit</a>
+                                            <form action="{{ route('jadwal.destroy', $jadwal) }}" method="POST" class="inline" onsubmit="return confirm('Hapus jadwal ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">🗑️ Hapus</button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

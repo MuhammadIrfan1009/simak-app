@@ -10,14 +10,55 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class NilaiController extends Controller
 {
-    /**
-     * Tampilkan semua data nilai
-     */
-    public function index()
+    public function __construct()
     {
-        $nilais = Nilai::with(['mahasiswa', 'mataKuliah.dosen'])
-            ->latest()
-            ->paginate(15);
+        $this->middleware('auth');
+    }
+
+    private function currentMahasiswa(): ?Mahasiswa
+    {
+        return Mahasiswa::where('email', auth()->user()->email)->first();
+    }
+
+    private function currentUserCanManageNilai(Nilai $nilai): bool
+    {
+        return auth()->user()->isDosen() && $nilai->mataKuliah && $nilai->mataKuliah->user_id === auth()->id();
+    }
+
+    public function index(Request $request)
+    {
+        $query = Nilai::with(['mahasiswa', 'mataKuliah.dosen']);
+
+        if (auth()->user()->isDosen()) {
+            $query->whereHas('mataKuliah', fn($subQuery) =>
+                $subQuery->where('user_id', auth()->id())
+            );
+        } elseif (auth()->user()->isMahasiswa()) {
+            $mahasiswa = $this->currentMahasiswa();
+            if (! $mahasiswa) {
+                abort(403, 'Mahasiswa tidak ditemukan.');
+            }
+
+            $query->where('mahasiswa_id', $mahasiswa->id);
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->whereHas('mahasiswa', fn($q) =>
+                    $q->where('nim', 'like', "%{$search}%")
+                        ->orWhere('nama', 'like', "%{$search}%")
+                )->orWhereHas('mataKuliah', fn($q) =>
+                    $q->where('kode_mk', 'like', "%{$search}%")
+                        ->orWhere('nama_mk', 'like', "%{$search}%")
+                        ->orWhereHas('dosen', fn($dosen) =>
+                            $dosen->where('name', 'like', "%{$search}%")
+                        )
+                );
+            });
+        }
+
+        $nilais = $query->latest()->paginate(15)->withQueryString();
 
         return view('nilai.index', compact('nilais'));
     }
@@ -27,8 +68,10 @@ class NilaiController extends Controller
      */
     public function create()
     {
-        $mahasiswas = Mahasiswa::all();
-        $mataKuliahs = MataKuliah::with('dosen')->get();
+        abort_unless(auth()->user()->isDosen(), 403);
+
+        $mahasiswas = Mahasiswa::orderBy('nama')->get();
+        $mataKuliahs = MataKuliah::where('user_id', auth()->id())->with('dosen')->get();
 
         return view('nilai.create', compact('mahasiswas', 'mataKuliahs'));
     }
@@ -38,6 +81,8 @@ class NilaiController extends Controller
      */
     public function store(Request $request)
     {
+        abort_unless(auth()->user()->isDosen(), 403);
+
         $validated = $request->validate([
             'mahasiswa_id'   => 'required|exists:mahasiswas,id',
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
@@ -48,18 +93,21 @@ class NilaiController extends Controller
             'nilai_uas'      => 'required|numeric|min:0|max:100',
         ]);
 
-        // Hitung nilai akhir
+        $mataKuliah = MataKuliah::where('id', $validated['mata_kuliah_id'])
+            ->where('user_id', auth()->id())
+            ->first();
+
+        abort_unless($mataKuliah, 403);
+
         $nilaiAkhir = Nilai::hitungNilaiAkhir(
             $validated['nilai_tugas'],
             $validated['nilai_uts'],
             $validated['nilai_uas']
         );
 
-        // Konversi grade dan indeks
         $grade = Nilai::nilaiKeGrade($nilaiAkhir);
         $indeks = Nilai::gradeToIndeks($grade);
 
-        // Simpan data (simpan indeks juga)
         Nilai::create([
             ...$validated,
             'nilai_akhir' => $nilaiAkhir,
@@ -78,7 +126,23 @@ class NilaiController extends Controller
     public function show(Nilai $nilai)
     {
         $nilai->load('mahasiswa', 'mataKuliah.dosen');
-        return view('nilai.show', compact('nilai'));
+
+        if (auth()->user()->isAdmin()) {
+            return view('nilai.show', compact('nilai'));
+        }
+
+        if (auth()->user()->isDosen() && $this->currentUserCanManageNilai($nilai)) {
+            return view('nilai.show', compact('nilai'));
+        }
+
+        if (auth()->user()->isMahasiswa()) {
+            $mahasiswa = $this->currentMahasiswa();
+            if ($mahasiswa && $nilai->mahasiswa_id === $mahasiswa->id) {
+                return view('nilai.show', compact('nilai'));
+            }
+        }
+
+        abort(403, 'Unauthorized');
     }
 
     /**
@@ -86,13 +150,11 @@ class NilaiController extends Controller
      */
     public function edit(Nilai $nilai)
     {
-        $mahasiswas = Mahasiswa::all();
-        $mataKuliahs = MataKuliah::with('dosen')->get();
+        abort_unless($this->currentUserCanManageNilai($nilai), 403);
 
-        return view(
-            'nilai.edit',
-            compact('nilai', 'mahasiswas', 'mataKuliahs')
-        );
+        $mataKuliahs = MataKuliah::where('user_id', auth()->id())->with('dosen')->get();
+
+        return view('nilai.edit', compact('nilai', 'mataKuliahs'));
     }
 
     /**
@@ -100,24 +162,23 @@ class NilaiController extends Controller
      */
     public function update(Request $request, Nilai $nilai)
     {
+        abort_unless($this->currentUserCanManageNilai($nilai), 403);
+
         $validated = $request->validate([
             'nilai_tugas' => 'required|numeric|min:0|max:100',
             'nilai_uts'   => 'required|numeric|min:0|max:100',
             'nilai_uas'   => 'required|numeric|min:0|max:100',
         ]);
 
-        // Hitung ulang nilai akhir
         $nilaiAkhir = Nilai::hitungNilaiAkhir(
             $validated['nilai_tugas'],
             $validated['nilai_uts'],
             $validated['nilai_uas']
         );
 
-        // Konversi grade dan indeks
         $grade = Nilai::nilaiKeGrade($nilaiAkhir);
         $indeks = Nilai::gradeToIndeks($grade);
 
-        // Update data
         $nilai->update([
             ...$validated,
             'nilai_akhir' => $nilaiAkhir,
@@ -135,6 +196,8 @@ class NilaiController extends Controller
      */
     public function destroy(Nilai $nilai)
     {
+        abort_unless($this->currentUserCanManageNilai($nilai), 403);
+
         $nilai->delete();
 
         return redirect()
@@ -147,8 +210,24 @@ class NilaiController extends Controller
      */
     public function rekapNilai(Request $request)
     {
-        if (!$request->filled('mahasiswa_id') || !$request->filled('semester')) {
-            $mahasiswas = Mahasiswa::orderBy('nama')->get();
+        $mahasiswas = Mahasiswa::orderBy('nama');
+
+        if (auth()->user()->isDosen()) {
+            $mahasiswas->whereHas('nilais.mataKuliah', fn($query) =>
+                $query->where('user_id', auth()->id())
+            );
+        } elseif (auth()->user()->isMahasiswa()) {
+            $current = $this->currentMahasiswa();
+            if (! $current) {
+                abort(403, 'Mahasiswa tidak ditemukan.');
+            }
+
+            $mahasiswas->where('id', $current->id);
+        }
+
+        $mahasiswas = $mahasiswas->get();
+
+        if (! $request->filled('mahasiswa_id') || ! $request->filled('semester')) {
             return view('nilai.rekap_form', compact('mahasiswas'));
         }
 
@@ -159,20 +238,42 @@ class NilaiController extends Controller
 
         $mahasiswa = Mahasiswa::findOrFail($request->mahasiswa_id);
 
+        if (auth()->user()->isDosen()) {
+            $hasAccess = $mahasiswa->nilais()
+                ->whereHas('mataKuliah', fn($query) => $query->where('user_id', auth()->id()))
+                ->exists();
+
+            abort_unless($hasAccess, 403);
+        }
+
+        if (auth()->user()->isMahasiswa()) {
+            $current = $this->currentMahasiswa();
+            if (! $current || $current->id !== $mahasiswa->id) {
+                abort(403, 'Unauthorized');
+            }
+        }
+
         $nilais = $mahasiswa->nilais()
             ->where('semester', $request->semester)
+            ->when(auth()->user()->isDosen(), fn($query) =>
+                $query->whereHas('mataKuliah', fn($subQuery) => $subQuery->where('user_id', auth()->id()))
+            )
             ->with('mataKuliah')
             ->get();
 
-        // Hitung IP (indeks berbobot oleh SKS)
         $totalBobot = $nilais->sum(function ($n) {
             return ($n->indeks ?? 0) * ($n->mataKuliah->sks ?? 0);
         });
         $totalSks = $nilais->sum(fn($n) => $n->mataKuliah->sks ?? 0);
         $ip = $totalSks ? round($totalBobot / $totalSks, 2) : 0.00;
 
-        // Hitung IPK (kumulatif semua semester)
-        $allNilais = $mahasiswa->nilais()->with('mataKuliah')->get();
+        $allNilais = $mahasiswa->nilais()
+            ->when(auth()->user()->isDosen(), fn($query) =>
+                $query->whereHas('mataKuliah', fn($subQuery) => $subQuery->where('user_id', auth()->id()))
+            )
+            ->with('mataKuliah')
+            ->get();
+
         $totalBobotAll = $allNilais->sum(function ($n) {
             return ($n->indeks ?? 0) * ($n->mataKuliah->sks ?? 0);
         });
@@ -197,8 +298,26 @@ class NilaiController extends Controller
 
         $mahasiswa = Mahasiswa::findOrFail($request->mahasiswa_id);
 
+        if (auth()->user()->isDosen()) {
+            $hasAccess = $mahasiswa->nilais()
+                ->whereHas('mataKuliah', fn($query) => $query->where('user_id', auth()->id()))
+                ->exists();
+
+            abort_unless($hasAccess, 403);
+        }
+
+        if (auth()->user()->isMahasiswa()) {
+            $current = $this->currentMahasiswa();
+            if (! $current || $current->id !== $mahasiswa->id) {
+                abort(403, 'Unauthorized');
+            }
+        }
+
         $nilais = $mahasiswa->nilais()
             ->where('semester', $request->semester)
+            ->when(auth()->user()->isDosen(), fn($query) =>
+                $query->whereHas('mataKuliah', fn($subQuery) => $subQuery->where('user_id', auth()->id()))
+            )
             ->with('mataKuliah')
             ->get();
 

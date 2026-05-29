@@ -9,7 +9,9 @@
                 <p class="text-sm text-gray-500">Menampilkan data lengkap dan nilai mahasiswa.</p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('mahasiswa.edit', $mahasiswa) }}" class="btn btn-primary">Edit</a>
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('mahasiswa.edit', $mahasiswa) }}" class="btn btn-primary">Edit</a>
+                @endif
                 <a href="{{ route('mahasiswa.index') }}" class="btn btn-secondary">Kembali</a>
             </div>
         </div>

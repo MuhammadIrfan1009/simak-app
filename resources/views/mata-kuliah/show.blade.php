@@ -9,7 +9,9 @@
                 <p class="text-sm text-gray-500">Informasi lengkap mata kuliah dan dosen pengampu.</p>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('mata-kuliah.edit', $mataKuliah) }}" class="btn btn-primary">✏️ Edit</a>
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('mata-kuliah.edit', $mataKuliah) }}" class="btn btn-primary">✏️ Edit</a>
+                @endif
                 <a href="{{ route('mata-kuliah.index') }}" class="btn btn-secondary">Kembali</a>
             </div>
         </div>

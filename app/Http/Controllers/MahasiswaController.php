@@ -7,28 +7,65 @@ use Illuminate\Http\Request;
 
 class MahasiswaController extends Controller
 {
-    // Middleware authorization
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    // List semua mahasiswa
-    public function index()
+    private function currentMahasiswa(): ?Mahasiswa
     {
-        $mahasiswas = Mahasiswa::paginate(10);
+        return Mahasiswa::where('email', auth()->user()->email)->first();
+    }
+
+    private function mahasiswaIsTaughtByCurrentDosen(Mahasiswa $mahasiswa): bool
+    {
+        return $mahasiswa->nilais()
+            ->whereHas('mataKuliah', fn($query) => $query->where('user_id', auth()->id()))
+            ->exists();
+    }
+
+    public function index(Request $request)
+    {
+        $query = Mahasiswa::query();
+
+        if (auth()->user()->isDosen()) {
+            $query->whereHas('nilais.mataKuliah', fn($subQuery) =>
+                $subQuery->where('user_id', auth()->id())
+            );
+        } elseif (auth()->user()->isMahasiswa()) {
+            $current = $this->currentMahasiswa();
+            if (! $current) {
+                abort(403, 'Mahasiswa tidak ditemukan.');
+            }
+
+            $query->where('id', $current->id);
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('nim', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('jurusan', 'like', "%{$search}%");
+            });
+        }
+
+        $mahasiswas = $query->orderBy('nama')->paginate(10)->withQueryString();
+
         return view('mahasiswa.index', compact('mahasiswas'));
     }
 
-    // Form create
     public function create()
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
         return view('mahasiswa.create');
     }
 
-    // Store data ke database
     public function store(Request $request)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
         $validated = $request->validate([
             'nim' => 'required|string|unique:mahasiswas',
             'nama' => 'required|string|max:255',
@@ -45,23 +82,38 @@ class MahasiswaController extends Controller
                        ->with('success', 'Mahasiswa berhasil ditambahkan');
     }
 
-    // Show detail mahasiswa
     public function show(Mahasiswa $mahasiswa)
     {
-        // Load nilai untuk dilihat di detail
-        $mahasiswa->load('nilais.mataKuliah');
+        if (auth()->user()->isDosen()) {
+            if (! $this->mahasiswaIsTaughtByCurrentDosen($mahasiswa)) {
+                abort(403, 'Unauthorized');
+            }
+
+            $mahasiswa->load(['nilais' => fn($query) => $query->whereHas('mataKuliah', fn($q) => $q->where('user_id', auth()->id()))->with('mataKuliah')]);
+        } elseif (auth()->user()->isMahasiswa()) {
+            $current = $this->currentMahasiswa();
+            if (! $current || $current->id !== $mahasiswa->id) {
+                abort(403, 'Unauthorized');
+            }
+
+            $mahasiswa->load('nilais.mataKuliah');
+        } else {
+            $mahasiswa->load('nilais.mataKuliah');
+        }
+
         return view('mahasiswa.show', compact('mahasiswa'));
     }
 
-    // Form edit
     public function edit(Mahasiswa $mahasiswa)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
         return view('mahasiswa.edit', compact('mahasiswa'));
     }
 
-    // Update data
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
         $validated = $request->validate([
             'nim' => 'required|string|unique:mahasiswas,nim,' . $mahasiswa->id,
             'nama' => 'required|string|max:255',
@@ -78,9 +130,10 @@ class MahasiswaController extends Controller
                        ->with('success', 'Mahasiswa berhasil diperbarui');
     }
 
-    // Delete mahasiswa permanently
     public function destroy(Mahasiswa $mahasiswa)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
         $mahasiswa->forceDelete();
 
         return redirect()->route('mahasiswa.index')

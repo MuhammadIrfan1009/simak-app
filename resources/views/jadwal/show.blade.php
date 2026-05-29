@@ -9,7 +9,9 @@
                 <p class="text-sm text-gray-500">Lihat detail jadwal mata kuliah.</p>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('jadwal.edit', $jadwal) }}" class="btn btn-primary">✏️ Edit</a>
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('jadwal.edit', $jadwal) }}" class="btn btn-primary">✏️ Edit</a>
+                @endif
                 <a href="{{ route('jadwal.index') }}" class="btn btn-secondary">Kembali</a>
             </div>
         </div>

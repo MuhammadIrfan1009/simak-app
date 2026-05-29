@@ -4,14 +4,24 @@
 <div class="py-12">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900">
-                👥 Data Mahasiswa
-            </h1>
-            <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">
-                ➕ Tambah Mahasiswa
-            </a>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-4xl font-bold text-gray-900">👥 Data Mahasiswa</h1>
+                <p class="text-gray-500 mt-1">Cari dan lihat mahasiswa yang tersedia.</p>
+            </div>
+
+            <form action="{{ route('mahasiswa.index') }}" method="GET" class="flex gap-2">
+                <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari NIM, nama, email, jurusan"
+                    class="form-input" />
+                <button type="submit" class="btn btn-secondary">Cari</button>
+            </form>
         </div>
+
+        @if(auth()->user()->isAdmin())
+            <div class="mb-6">
+                <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">➕ Tambah Mahasiswa</a>
+            </div>
+        @endif
 
         <!-- Success Message -->
         @if ($message = Session::get('success'))
@@ -51,16 +61,19 @@
                                         <a href="{{ route('mahasiswa.show', $item) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                             👁️ Lihat
                                         </a>
-                                        <a href="{{ route('mahasiswa.edit', $item) }}" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
-                                            ✏️ Edit
-                                        </a>
-                                        <form action="{{ route('mahasiswa.destroy', $item) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Yakin?')" class="text-red-600 hover:text-red-800 text-sm font-medium">
-                                                🗑️ Hapus
-                                            </button>
-                                        </form>
+
+                                        @if(auth()->user()->isAdmin())
+                                            <a href="{{ route('mahasiswa.edit', $item) }}" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
+                                                ✏️ Edit
+                                            </a>
+                                            <form action="{{ route('mahasiswa.destroy', $item) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" onclick="return confirm('Yakin?')" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                                    🗑️ Hapus
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

@@ -3,9 +3,20 @@
 @section('content')
 <div class="py-12">
     <div class="max-w-4xl mx-auto px-4">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold">📝 Daftar Nilai</h1>
-            <a href="{{ route('nilai.create') }}" class="btn btn-primary">➕ Tambah Nilai</a>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">📝 Daftar Nilai</h1>
+                <p class="text-gray-500 mt-1">Cari nilai berdasarkan mahasiswa, mata kuliah, atau dosen.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
+                <form action="{{ route('nilai.index') }}" method="GET" class="flex gap-2 w-full sm:w-auto">
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari mahasiswa, mata kuliah, dosen" class="form-input" />
+                    <button type="submit" class="btn btn-secondary">Cari</button>
+                </form>
+                @if(auth()->user()->isDosen())
+                    <a href="{{ route('nilai.create') }}" class="btn btn-primary">➕ Tambah Nilai</a>
+                @endif
+            </div>
         </div>
 
         @if(session('success'))
@@ -38,12 +49,14 @@
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $nilai->grade }}</td>
                             <td class="px-6 py-4 text-sm text-right">
                                 <a href="{{ route('nilai.show', $nilai) }}" class="text-gray-600 hover:underline mr-3">Lihat</a>
-                                <a href="{{ route('nilai.edit', $nilai) }}" class="text-blue-600 hover:underline mr-3">Edit</a>
-                                <form action="{{ route('nilai.destroy', $nilai) }}" method="POST" class="inline" onsubmit="return confirm('Hapus nilai ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="text-red-600 hover:underline">Hapus</button>
-                                </form>
+                                @if(auth()->user()->isDosen() && $nilai->mataKuliah->user_id === auth()->id())
+                                    <a href="{{ route('nilai.edit', $nilai) }}" class="text-blue-600 hover:underline mr-3">Edit</a>
+                                    <form action="{{ route('nilai.destroy', $nilai) }}" method="POST" class="inline" onsubmit="return confirm('Hapus nilai ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="text-red-600 hover:underline">Hapus</button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty
