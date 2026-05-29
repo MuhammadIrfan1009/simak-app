@@ -8,7 +8,7 @@ class Nilai extends Model
 {
     protected $fillable = [
         'mahasiswa_id', 'mata_kuliah_id', 'semester', 'tahun_akademik',
-        'nilai_tugas', 'nilai_uts', 'nilai_uas', 'nilai_akhir', 'grade'
+        'nilai_tugas', 'nilai_uts', 'nilai_uas', 'nilai_akhir', 'grade', 'indeks'
     ];
 
     protected $casts = [
@@ -43,5 +43,17 @@ class Nilai extends Model
         if ($nilai >= 60) return 'C';
         if ($nilai >= 50) return 'D';
         return 'E';
+    }
+
+    // Konversi grade ke indeks numeric (misal A=4, B=3, ...)
+    public static function gradeToIndeks($grade)
+    {
+        return match (strtoupper($grade)) {
+            'A' => 4.00,
+            'B' => 3.00,
+            'C' => 2.00,
+            'D' => 1.00,
+            default => 0.00,
+        };
     }
 }

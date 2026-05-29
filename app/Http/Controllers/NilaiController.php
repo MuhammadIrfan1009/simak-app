@@ -15,7 +15,7 @@ class NilaiController extends Controller
      */
     public function index()
     {
-        $nilais = Nilai::with(['mahasiswa', 'mataKuliah'])
+        $nilais = Nilai::with(['mahasiswa', 'mataKuliah.dosen'])
             ->latest()
             ->paginate(15);
 
@@ -28,7 +28,7 @@ class NilaiController extends Controller
     public function create()
     {
         $mahasiswas = Mahasiswa::all();
-        $mataKuliahs = MataKuliah::all();
+        $mataKuliahs = MataKuliah::with('dosen')->get();
 
         return view('nilai.create', compact('mahasiswas', 'mataKuliahs'));
     }
@@ -55,14 +55,16 @@ class NilaiController extends Controller
             $validated['nilai_uas']
         );
 
-        // Konversi grade
+        // Konversi grade dan indeks
         $grade = Nilai::nilaiKeGrade($nilaiAkhir);
+        $indeks = Nilai::gradeToIndeks($grade);
 
-        // Simpan data
+        // Simpan data (simpan indeks juga)
         Nilai::create([
             ...$validated,
             'nilai_akhir' => $nilaiAkhir,
             'grade'       => $grade,
+            'indeks'      => $indeks,
         ]);
 
         return redirect()
@@ -71,12 +73,21 @@ class NilaiController extends Controller
     }
 
     /**
+     * Tampilkan detail nilai
+     */
+    public function show(Nilai $nilai)
+    {
+        $nilai->load('mahasiswa', 'mataKuliah.dosen');
+        return view('nilai.show', compact('nilai'));
+    }
+
+    /**
      * Form edit nilai
      */
     public function edit(Nilai $nilai)
     {
         $mahasiswas = Mahasiswa::all();
-        $mataKuliahs = MataKuliah::all();
+        $mataKuliahs = MataKuliah::with('dosen')->get();
 
         return view(
             'nilai.edit',
@@ -102,11 +113,16 @@ class NilaiController extends Controller
             $validated['nilai_uas']
         );
 
+        // Konversi grade dan indeks
+        $grade = Nilai::nilaiKeGrade($nilaiAkhir);
+        $indeks = Nilai::gradeToIndeks($grade);
+
         // Update data
         $nilai->update([
             ...$validated,
             'nilai_akhir' => $nilaiAkhir,
-            'grade'       => Nilai::nilaiKeGrade($nilaiAkhir),
+            'grade'       => $grade,
+            'indeks'      => $indeks,
         ]);
 
         return redirect()
@@ -143,11 +159,24 @@ class NilaiController extends Controller
             ->with('mataKuliah')
             ->get();
 
-        $rataRata = $nilais->avg('nilai_akhir');
+        // Hitung IP (indeks berbobot oleh SKS)
+        $totalBobot = $nilais->sum(function ($n) {
+            return ($n->indeks ?? 0) * ($n->mataKuliah->sks ?? 0);
+        });
+        $totalSks = $nilais->sum(fn($n) => $n->mataKuliah->sks ?? 0);
+        $ip = $totalSks ? round($totalBobot / $totalSks, 2) : 0.00;
+
+        // Hitung IPK (kumulatif semua semester)
+        $allNilais = $mahasiswa->nilais()->with('mataKuliah')->get();
+        $totalBobotAll = $allNilais->sum(function ($n) {
+            return ($n->indeks ?? 0) * ($n->mataKuliah->sks ?? 0);
+        });
+        $totalSksAll = $allNilais->sum(fn($n) => $n->mataKuliah->sks ?? 0);
+        $ipk = $totalSksAll ? round($totalBobotAll / $totalSksAll, 2) : 0.00;
 
         return view(
             'nilai.rekap',
-            compact('mahasiswa', 'nilais', 'rataRata')
+            compact('mahasiswa', 'nilais', 'ip', 'totalSks', 'ipk', 'totalSksAll')
         );
     }
 
@@ -168,11 +197,15 @@ class NilaiController extends Controller
             ->with('mataKuliah')
             ->get();
 
-        $rataRata = $nilais->avg('nilai_akhir');
+        $totalBobot = $nilais->sum(function ($n) {
+            return ($n->indeks ?? 0) * ($n->mataKuliah->sks ?? 0);
+        });
+        $totalSks = $nilais->sum(fn($n) => $n->mataKuliah->sks ?? 0);
+        $ip = $totalSks ? round($totalBobot / $totalSks, 2) : 0.00;
 
         $pdf = Pdf::loadView(
             'nilai.pdf',
-            compact('mahasiswa', 'nilais', 'rataRata')
+            compact('mahasiswa', 'nilais', 'ip', 'totalSks')
         );
 
         return $pdf->download(

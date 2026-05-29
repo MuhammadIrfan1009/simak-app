@@ -19,6 +19,8 @@
                         <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">#</th>
                         <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Mahasiswa</th>
                         <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Mata Kuliah</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Dosen</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Indeks</th>
                         <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Nilai Akhir</th>
                         <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Grade</th>
                         <th class="px-6 py-3 text-right text-sm font-medium text-gray-500">Aksi</th>
@@ -30,9 +32,12 @@
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $loop->iteration + ($nilais->currentPage()-1)*$nilais->perPage() }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $nilai->mahasiswa->nim }} - {{ $nilai->mahasiswa->nama }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $nilai->mataKuliah->kode_mk ?? '-' }} - {{ $nilai->mataKuliah->nama_mk ?? '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $nilai->mataKuliah->dosen->name ?? '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ number_format($nilai->indeks ?? 0, 2) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ number_format($nilai->nilai_akhir, 2) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $nilai->grade }}</td>
                             <td class="px-6 py-4 text-sm text-right">
+                                <a href="{{ route('nilai.show', $nilai) }}" class="text-gray-600 hover:underline mr-3">Lihat</a>
                                 <a href="{{ route('nilai.edit', $nilai) }}" class="text-blue-600 hover:underline mr-3">Edit</a>
                                 <form action="{{ route('nilai.destroy', $nilai) }}" method="POST" class="inline" onsubmit="return confirm('Hapus nilai ini?');">
                                     @csrf
@@ -43,7 +48,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada data nilai.</td>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">Belum ada data nilai.</td>
                         </tr>
                     @endforelse
                 </tbody>

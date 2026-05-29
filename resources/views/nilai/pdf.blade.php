@@ -64,6 +64,7 @@
                 <th>Kode MK</th>
                 <th>Nama Mata Kuliah</th>
                 <th>SKS</th>
+                <th>Indeks</th>
                 <th>Tugas</th>
                 <th>UTS</th>
                 <th>UAS</th>
@@ -78,6 +79,7 @@
                     <td>{{ $nilai->mataKuliah->kode_mk }}</td>
                     <td>{{ $nilai->mataKuliah->nama_mk }}</td>
                     <td>{{ $nilai->mataKuliah->sks }}</td>
+                    <td>{{ number_format($nilai->indeks ?? 0, 2) }}</td>
                     <td>{{ number_format($nilai->nilai_tugas, 2) }}</td>
                     <td>{{ number_format($nilai->nilai_uts, 2) }}</td>
                     <td>{{ number_format($nilai->nilai_uas, 2) }}</td>
@@ -93,8 +95,8 @@
     </table>
 
     <div class="summary">
-        <p><strong>Rata-rata Nilai:</strong> {{ number_format($rataRata, 2) }}</p>
-        <p><strong>Total SKS:</strong> {{ $nilais->sum(fn($n) => $n->mataKuliah->sks) }}</p>
+        <p><strong>IP (Semester):</strong> {{ number_format($ip ?? 0, 2) }}</p>
+        <p><strong>Total SKS:</strong> {{ $totalSks ?? $nilais->sum(fn($n) => $n->mataKuliah->sks) }}</p>
     </div>
 
     <div style="margin-top: 40px; text-align: right;">
