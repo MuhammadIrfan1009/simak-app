@@ -25,18 +25,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // CRUD Jadwal
     Route::resource('jadwal', JadwalController::class);
 
-    // CRUD Nilai
-    Route::resource('nilai', NilaiController::class);
-
-    // Export PDF Nilai
+    // Rekap Nilai & Export PDF (declared before resource route to avoid conflicts with 'nilai/{nilai}')
+    Route::get('nilai/rekap', [NilaiController::class, 'rekapNilai'])->name('nilai.rekap');
     Route::get('nilai/export/pdf', [NilaiController::class, 'exportPdf'])->name('nilai.export-pdf');
+    Route::resource('nilai', NilaiController::class);
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-Route::get('nilai/{id}/export-pdf', [NilaiController::class, 'exportPdf'])->name('nilai.export-pdf');
 
 require __DIR__.'/auth.php';

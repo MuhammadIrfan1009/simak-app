@@ -147,9 +147,14 @@ class NilaiController extends Controller
      */
     public function rekapNilai(Request $request)
     {
+        if (!$request->filled('mahasiswa_id') || !$request->filled('semester')) {
+            $mahasiswas = Mahasiswa::orderBy('nama')->get();
+            return view('nilai.rekap_form', compact('mahasiswas'));
+        }
+
         $request->validate([
             'mahasiswa_id' => 'required|exists:mahasiswas,id',
-            'semester'     => 'required|integer',
+            'semester'     => 'required|integer|min:1|max:14',
         ]);
 
         $mahasiswa = Mahasiswa::findOrFail($request->mahasiswa_id);
@@ -176,7 +181,7 @@ class NilaiController extends Controller
 
         return view(
             'nilai.rekap',
-            compact('mahasiswa', 'nilais', 'ip', 'totalSks', 'ipk', 'totalSksAll')
+            compact('mahasiswa', 'nilais', 'ip', 'totalSks', 'ipk', 'totalSksAll', 'request')
         );
     }
 

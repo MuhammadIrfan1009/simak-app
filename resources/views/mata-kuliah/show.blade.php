@@ -50,7 +50,7 @@
                         @foreach($mataKuliah->jadwals as $jadwal)
                             <li class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                                 <p class="text-sm text-gray-700">Hari: {{ $jadwal->hari }}</p>
-                                <p class="text-sm text-gray-700">Waktu: {{ $jadwal->waktu }}</p>
+                                <p class="text-sm text-gray-700">Waktu: {{ substr($jadwal->jam_mulai, 0, 5) }} - {{ substr($jadwal->jam_selesai, 0, 5) }}</p>
                                 <p class="text-sm text-gray-700">Ruangan: {{ $jadwal->ruangan }}</p>
                             </li>
                         @endforeach
@@ -67,7 +67,7 @@
                         @foreach($mataKuliah->nilais as $nilai)
                             <li class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                                 <p class="text-sm text-gray-700">Mahasiswa: {{ $nilai->mahasiswa->nama ?? 'N/A' }}</p>
-                                <p class="text-sm text-gray-700">Nilai: {{ $nilai->nilai }}</p>
+                                <p class="text-sm text-gray-700">Nilai Akhir: {{ $nilai->nilai_akhir }} (Grade: {{ $nilai->grade }})</p>
                             </li>
                         @endforeach
                     </ul>

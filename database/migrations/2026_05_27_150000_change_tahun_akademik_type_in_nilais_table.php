@@ -1,17 +1,16 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE `nilais` MODIFY `tahun_akademik` VARCHAR(20) NOT NULL");
+        // Done in base migration
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE `nilais` MODIFY `tahun_akademik` INT NOT NULL");
+        // Done in base migration
     }
 };

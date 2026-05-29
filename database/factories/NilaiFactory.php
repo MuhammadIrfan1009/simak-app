@@ -16,6 +16,8 @@ class NilaiFactory extends Factory
         $nilaiUas = $this->faker->numberBetween(60, 100);
 
         $nilaiAkhir = Nilai::hitungNilaiAkhir($nilaiTugas, $nilaiUts, $nilaiUas);
+        $grade = Nilai::nilaiKeGrade($nilaiAkhir);
+        $indeks = Nilai::gradeToIndeks($grade);
 
         return [
             'mahasiswa_id' => Mahasiswa::inRandomOrder()->first()->id ?? Mahasiswa::factory()->create()->id,
@@ -26,7 +28,8 @@ class NilaiFactory extends Factory
             'nilai_uts' => $nilaiUts,
             'nilai_uas' => $nilaiUas,
             'nilai_akhir' => $nilaiAkhir,
-            'grade' => Nilai::nilaiKeGrade($nilaiAkhir),
+            'grade' => $grade,
+            'indeks' => $indeks,
         ];
     }
 }

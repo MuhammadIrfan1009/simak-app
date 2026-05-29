@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 
 class MataKuliah extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'kode_mk', 'nama_mk', 'sks', 'semester', 'user_id'
     ];

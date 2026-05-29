@@ -13,12 +13,13 @@ return new class extends Migration
             $table->foreignId('mahasiswa_id')->constrained()->onDelete('cascade');
             $table->foreignId('mata_kuliah_id')->constrained()->onDelete('cascade');
             $table->integer('semester');
-            $table->integer('tahun_akademik');
+            $table->string('tahun_akademik');
             $table->decimal('nilai_tugas', 5, 2)->nullable();
             $table->decimal('nilai_uts', 5, 2)->nullable();
             $table->decimal('nilai_uas', 5, 2)->nullable();
             $table->decimal('nilai_akhir', 5, 2)->nullable();
             $table->string('grade')->nullable();  // A, B, C, D, E
+            $table->decimal('indeks', 3, 2)->nullable(); // A=4, B=3, etc.
             $table->timestamps();
 
             // Composite unique key - satu mahasiswa hanya bisa punya satu nilai per MK per semester

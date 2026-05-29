@@ -88,7 +88,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" style="text-align: center;">Belum ada data nilai</td>
+                    <td colspan="10" style="text-align: center;">Belum ada data nilai</td>
                 </tr>
             @endforelse
         </tbody>
