@@ -74,9 +74,15 @@ class JadwalController extends Controller
             });
         }
 
+<<<<<<< HEAD
         $jadwals = $query->orderBy($sortBy, $sortDirection)->paginate($perPage)->withQueryString();
 
         return view('jadwal.index', compact('jadwals', 'perPage', 'sortBy', 'sortDirection'));
+=======
+        $jadwals = $query->orderBy('hari')->paginate(10)->withQueryString();
+
+        return view('jadwal.index', compact('jadwals'));
+>>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
     }
 
     public function create()

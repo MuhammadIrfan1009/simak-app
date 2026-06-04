@@ -40,9 +40,12 @@ class MataKuliahController extends Controller
     public function index(Request $request)
     {
         $query = MataKuliah::with('dosen');
+<<<<<<< HEAD
         $perPage = in_array((int) $request->get('per_page', 10), [10, 50, 100], true) ? (int) $request->get('per_page', 10) : 10;
         $sortBy = in_array($request->get('sort'), ['kode_mk', 'nama_mk', 'sks', 'semester', 'user_id'], true) ? $request->get('sort') : 'nama_mk';
         $sortDirection = $request->get('direction') === 'desc' ? 'desc' : 'asc';
+=======
+>>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
 
         if (auth()->user()->isDosen()) {
             $query->where('user_id', auth()->id());
@@ -69,9 +72,15 @@ class MataKuliahController extends Controller
             });
         }
 
+<<<<<<< HEAD
         $mataKuliahs = $query->orderBy($sortBy, $sortDirection)->paginate($perPage)->withQueryString();
 
         return view('mata-kuliah.index', compact('mataKuliahs', 'perPage', 'sortBy', 'sortDirection'));
+=======
+        $mataKuliahs = $query->orderBy('nama_mk')->paginate(10)->withQueryString();
+
+        return view('mata-kuliah.index', compact('mataKuliahs'));
+>>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
     }
 
     public function create()

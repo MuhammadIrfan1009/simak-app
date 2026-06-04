@@ -66,6 +66,7 @@
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ $jadwal->ruangan }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-3">
+<<<<<<< HEAD
                                         <a href="{{ route('jadwal.show', $jadwal) }}" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg> Lihat</a>
                                         @if(auth()->user()->isAdmin())
                                             <a href="{{ route('jadwal.edit', $jadwal) }}" class="inline-flex items-center gap-1 text-amber-600 hover:text-amber-800 text-sm font-medium"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-3.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg> Edit</a>
@@ -73,6 +74,15 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 text-sm font-medium"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9 14 19M10 9l-.74 10M6 5h12M9 5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/></svg> Hapus</button>
+=======
+                                        <a href="{{ route('jadwal.show', $jadwal) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">👁️ Lihat</a>
+                                        @if(auth()->user()->isAdmin())
+                                            <a href="{{ route('jadwal.edit', $jadwal) }}" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">✏️ Edit</a>
+                                            <form action="{{ route('jadwal.destroy', $jadwal) }}" method="POST" class="inline" onsubmit="return confirm('Hapus jadwal ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">🗑️ Hapus</button>
+>>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
                                             </form>
                                         @endif
                                     </div>
