@@ -27,12 +27,9 @@ class MahasiswaController extends Controller
     public function index(Request $request)
     {
         $query = Mahasiswa::query();
-<<<<<<< HEAD
         $perPage = in_array((int) $request->get('per_page', 10), [10, 50, 100], true) ? (int) $request->get('per_page', 10) : 10;
         $sortBy = in_array($request->get('sort'), ['nim', 'nama', 'email', 'jurusan', 'angkatan'], true) ? $request->get('sort') : 'nama';
         $sortDirection = $request->get('direction') === 'desc' ? 'desc' : 'asc';
-=======
->>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
 
         if (auth()->user()->isDosen()) {
             $query->whereHas('nilais.mataKuliah', fn($subQuery) =>
@@ -57,15 +54,9 @@ class MahasiswaController extends Controller
             });
         }
 
-<<<<<<< HEAD
         $mahasiswas = $query->orderBy($sortBy, $sortDirection)->paginate($perPage)->withQueryString();
 
         return view('mahasiswa.index', compact('mahasiswas', 'perPage', 'sortBy', 'sortDirection'));
-=======
-        $mahasiswas = $query->orderBy('nama')->paginate(10)->withQueryString();
-
-        return view('mahasiswa.index', compact('mahasiswas'));
->>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
     }
 
     public function create()
@@ -94,11 +85,7 @@ class MahasiswaController extends Controller
                        ->with('success', 'Mahasiswa berhasil ditambahkan');
     }
 
-<<<<<<< HEAD
     public function show(Request $request, Mahasiswa $mahasiswa)
-=======
-    public function show(Mahasiswa $mahasiswa)
->>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
     {
         if (auth()->user()->isDosen()) {
             if (! $this->mahasiswaIsTaughtByCurrentDosen($mahasiswa)) {
@@ -117,7 +104,6 @@ class MahasiswaController extends Controller
             $mahasiswa->load('nilais.mataKuliah');
         }
 
-<<<<<<< HEAD
         $selectedSemester = $request->input('semester');
         $filteredNilais = $mahasiswa->nilais
             ->when($selectedSemester !== null && $selectedSemester !== '', fn ($collection) => $collection->where('semester', (int) $selectedSemester));
@@ -153,9 +139,6 @@ class MahasiswaController extends Controller
             ->values();
 
         return view('mahasiswa.show', compact('mahasiswa', 'semesterSummaries', 'ipk', 'totalSksAll', 'availableSemesters', 'selectedSemester'));
-=======
-        return view('mahasiswa.show', compact('mahasiswa'));
->>>>>>> ed81cea0eb6429abd0f8c7818b62d8df5a896fec
     }
 
     public function edit(Mahasiswa $mahasiswa)
