@@ -130,11 +130,12 @@
                         </div>
                         <div class="text-right">
                             <p class="text-lg font-extrabold text-indigo-600 tracking-tight">{{ number_format($item->nilai_akhir, 2) }}</p>
+                            @php($grade = strtoupper($item->grade))
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold mt-1
-                                @if($item->grade === 'A') badge-grade-a
-                                @elseif($item->grade === 'B') badge-grade-b
-                                @elseif($item->grade === 'C') badge-grade-c
-                                @elseif($item->grade === 'D') badge-grade-d
+                                @if(in_array($grade, ['A', 'A-'])) badge-grade-a
+                                @elseif(in_array($grade, ['B+', 'B', 'B-'])) badge-grade-b
+                                @elseif(in_array($grade, ['C+', 'C'])) badge-grade-c
+                                @elseif($grade === 'D') badge-grade-d
                                 @else badge-grade-e @endif">
                                 Grade: {{ $item->grade }}
                             </span>

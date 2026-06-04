@@ -1,5 +1,5 @@
 // Auto-calculate nilai akhir
-document.addEventListener('DOMContentLoaded', function() {
+function initNilaiCalculator() {
     const nilaiTugas = document.getElementById('nilai_tugas');
     const nilaiUts = document.getElementById('nilai_uts');
     const nilaiUas = document.getElementById('nilai_uas');
@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const nilaiAkhir = (0.20 * tugas) + (0.30 * uts) + (0.50 * uas);
             nilaiAkhirDisplay.textContent = nilaiAkhir.toFixed(2);
 
-            // Hitung grade
             let grade = 'E';
             if (nilaiAkhir >= 80) grade = 'A';
             else if (nilaiAkhir >= 70) grade = 'B';
@@ -31,11 +30,33 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nilaiTugas) nilaiTugas.addEventListener('input', hitungNilaiAkhir);
     if (nilaiUts) nilaiUts.addEventListener('input', hitungNilaiAkhir);
     if (nilaiUas) nilaiUas.addEventListener('input', hitungNilaiAkhir);
-});
+    hitungNilaiAkhir();
+}
+
+function initLiveSearchForms() {
+    document.querySelectorAll('input[data-live-search-form]').forEach((input) => {
+        let timer;
+
+        input.addEventListener('input', () => {
+            const value = input.value.trim();
+            if (value.length < 2) {
+                return;
+            }
+
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                const form = document.getElementById(input.dataset.liveSearchForm);
+                if (form) {
+                    form.requestSubmit();
+                }
+            }, 450);
+        });
+    });
+}
 
 // Konfirmasi delete
-document.querySelectorAll('form[data-confirm]').forEach(form => {
-    form.addEventListener('submit', function(e) {
+document.querySelectorAll('form[data-confirm]').forEach((form) => {
+    form.addEventListener('submit', function (e) {
         if (!confirm(this.dataset.confirm)) {
             e.preventDefault();
         }
@@ -55,3 +76,8 @@ function showToast(message, type = 'success') {
         toast.remove();
     }, 3000);
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    initNilaiCalculator();
+    initLiveSearchForms();
+});

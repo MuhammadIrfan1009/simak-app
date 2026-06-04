@@ -161,7 +161,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-3 sm:mt-0 flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-xs self-start sm:self-auto">
-                                    <span>📅 {{ $item->hari }}</span>
+                                    <span class="inline-flex items-center gap-1"><svg class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 19h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1Z"/></svg> {{ $item->hari }}</span>
                                     <span class="text-slate-300">|</span>
                                     <span>🕒 {{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</span>
                                 </div>
@@ -206,11 +206,12 @@
                                         <td class="px-5 py-4 text-sm text-center font-medium text-slate-600">{{ number_format($nilai->nilai_uas, 1) }}</td>
                                         <td class="px-5 py-4 text-sm text-center font-bold text-indigo-600">{{ number_format($nilai->nilai_akhir, 2) }}</td>
                                         <td class="px-5 py-4 text-sm text-center">
+                                            @php($grade = strtoupper($nilai->grade))
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
-                                                @if($nilai->grade === 'A') badge-grade-a
-                                                @elseif($nilai->grade === 'B') badge-grade-b
-                                                @elseif($nilai->grade === 'C') badge-grade-c
-                                                @elseif($nilai->grade === 'D') badge-grade-d
+                                                @if(in_array($grade, ['A', 'A-'])) badge-grade-a
+                                                @elseif(in_array($grade, ['B+', 'B', 'B-'])) badge-grade-b
+                                                @elseif(in_array($grade, ['C+', 'C'])) badge-grade-c
+                                                @elseif($grade === 'D') badge-grade-d
                                                 @else badge-grade-e @endif">
                                                 {{ $nilai->grade }}
                                             </span>

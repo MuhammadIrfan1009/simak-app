@@ -8,14 +8,16 @@
         <!-- Back Navigation & Export PDF -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <div>
-                <a href="{{ route('nilai.rekap') }}" class="inline-flex items-center text-sm font-semibold text-primary hover:text-primary-dark transition">
-                    ← Kembali ke Pencarian
+                <a href="{{ route('nilai.rekap') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark transition">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19 3 12l7-7M3 12h18"/></svg>
+                    Kembali ke Pencarian
                 </a>
-                <h1 class="text-3xl font-extrabold text-gray-900 mt-2">📊 Transkrip Nilai Semester</h1>
+                <h1 class="text-3xl font-extrabold text-gray-900 mt-2 flex items-center gap-3"><svg class="h-7 w-7 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Zm3 3h10M7 12h6M7 15h4"/></svg> Transkrip Nilai Semester</h1>
             </div>
             <a href="{{ route('nilai.export-pdf', ['mahasiswa_id' => $mahasiswa->id, 'semester' => $request->semester]) }}" 
                class="btn btn-secondary flex items-center gap-2 hover:bg-gray-300 transition py-2.5 px-4 rounded-lg font-semibold shadow-sm">
-                <span>📥</span> Unduh PDF Rekap Nilai
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                Unduh PDF Rekap Nilai
             </a>
         </div>
 
@@ -112,12 +114,13 @@
                                     {{ number_format($nilai->nilai_akhir, 2) }}
                                 </td>
                                 <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    @php($grade = strtoupper($nilai->grade))
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
-                                        @if($nilai->grade === 'A') bg-green-50 text-green-700
-                                        @elseif($nilai->grade === 'B') bg-blue-50 text-blue-700
-                                        @elseif($nilai->grade === 'C') bg-yellow-50 text-yellow-700
-                                        @elseif($nilai->grade === 'D') bg-orange-50 text-orange-700
-                                        @else bg-red-50 text-red-700
+                                        @if(in_array($grade, ['A', 'A-'])) bg-emerald-50 text-emerald-700
+                                        @elseif(in_array($grade, ['B+', 'B', 'B-'])) bg-blue-50 text-blue-700
+                                        @elseif(in_array($grade, ['C+', 'C'])) bg-amber-50 text-amber-700
+                                        @elseif($grade === 'D') bg-orange-50 text-orange-700
+                                        @else bg-rose-50 text-rose-700
                                         @endif">
                                         {{ $nilai->grade }}
                                     </span>

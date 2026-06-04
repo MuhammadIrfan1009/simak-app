@@ -18,19 +18,27 @@ class NilaiHelper
 
     /**
      * Konversi nilai numerik ke grade
-     * A: 80-100
-     * B: 70-79
-     * C: 60-69
-     * D: 50-59
-     * E: 0-49
+     * A  = 86.00 - 100.00
+     * A- = 80.00 - 85.99
+     * B+ = 75.00 - 79.99
+     * B  = 70.00 - 74.99
+     * B- = 65.00 - 69.99
+     * C+ = 60.00 - 64.99
+     * C  = 56.00 - 59.99
+     * D  = 41.00 - 55.99
+     * E  = 0.00 - 40.99
      */
     public static function nilaiKeGrade($nilai)
     {
         return match (true) {
-            $nilai >= 80 => 'A',
-            $nilai >= 70 => 'B',
-            $nilai >= 60 => 'C',
-            $nilai >= 50 => 'D',
+            $nilai >= 86.00 => 'A',
+            $nilai >= 80.00 => 'A-',
+            $nilai >= 75.00 => 'B+',
+            $nilai >= 70.00 => 'B',
+            $nilai >= 65.00 => 'B-',
+            $nilai >= 60.00 => 'C+',
+            $nilai >= 56.00 => 'C',
+            $nilai >= 41.00 => 'D',
             default => 'E'
         };
     }

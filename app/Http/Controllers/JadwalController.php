@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Jadwal;
 use App\Models\MataKuliah;
+use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 
 class JadwalController extends Controller
@@ -13,27 +14,82 @@ class JadwalController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    private function currentMahasiswa(): ?Mahasiswa
     {
-        $jadwals = Jadwal::with('mataKuliah.dosen')->paginate(10);
-        return view('jadwal.index', compact('jadwals'));
+        return Mahasiswa::where('email', auth()->user()->email)->first();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    private function currentUserCanViewJadwal(Jadwal $jadwal): bool
+    {
+        if (auth()->user()->isAdmin()) {
+            return true;
+        }
+
+        if (auth()->user()->isDosen()) {
+            return $jadwal->mataKuliah && $jadwal->mataKuliah->user_id === auth()->id();
+        }
+
+        if (auth()->user()->isMahasiswa()) {
+            $mahasiswa = $this->currentMahasiswa();
+            return $mahasiswa && $jadwal->mataKuliah->nilais()->where('mahasiswa_id', $mahasiswa->id)->exists();
+        }
+
+        return false;
+    }
+
+    public function index(Request $request)
+    {
+        $query = Jadwal::with('mataKuliah.dosen');
+        $perPage = in_array((int) $request->get('per_page', 10), [10, 50, 100], true) ? (int) $request->get('per_page', 10) : 10;
+        $sortBy = in_array($request->get('sort'), ['hari', 'ruangan', 'jam_mulai', 'jam_selesai'], true) ? $request->get('sort') : 'hari';
+        $sortDirection = $request->get('direction') === 'desc' ? 'desc' : 'asc';
+
+        if (auth()->user()->isDosen()) {
+            $query->whereHas('mataKuliah', fn($subQuery) =>
+                $subQuery->where('user_id', auth()->id())
+            );
+        } elseif (auth()->user()->isMahasiswa()) {
+            $mahasiswa = $this->currentMahasiswa();
+            if (! $mahasiswa) {
+                abort(403, 'Mahasiswa tidak ditemukan.');
+            }
+
+            $query->whereHas('mataKuliah.nilais', fn($subQuery) =>
+                $subQuery->where('mahasiswa_id', $mahasiswa->id)
+            );
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('hari', 'like', "%{$search}%")
+                    ->orWhere('ruangan', 'like', "%{$search}%")
+                    ->orWhereHas('mataKuliah', fn($builder) =>
+                        $builder->where('kode_mk', 'like', "%{$search}%")
+                            ->orWhere('nama_mk', 'like', "%{$search}%")
+                            ->orWhereHas('dosen', fn($dosen) =>
+                                $dosen->where('name', 'like', "%{$search}%")
+                            )
+                    );
+            });
+        }
+
+        $jadwals = $query->orderBy($sortBy, $sortDirection)->paginate($perPage)->withQueryString();
+
+        return view('jadwal.index', compact('jadwals', 'perPage', 'sortBy', 'sortDirection'));
+    }
+
     public function create()
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
         $mataKuliahs = MataKuliah::all();
         return view('jadwal.create', compact('mataKuliahs'));
     }
 
-    // Validasi jam tidak bentrok
     public function store(Request $request)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
         $validated = $request->validate([
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat',
@@ -47,29 +103,28 @@ class JadwalController extends Controller
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil ditambahkan');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Jadwal $jadwal)
     {
         $jadwal->load('mataKuliah.dosen');
+
+        if (! $this->currentUserCanViewJadwal($jadwal)) {
+            abort(403, 'Unauthorized');
+        }
+
         return view('jadwal.show', compact('jadwal'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Jadwal $jadwal)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
         $mataKuliahs = MataKuliah::all();
         return view('jadwal.edit', compact('jadwal', 'mataKuliahs'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Jadwal $jadwal)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
         $validated = $request->validate([
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat',
@@ -83,11 +138,10 @@ class JadwalController extends Controller
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil diperbarui');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Jadwal $jadwal)
     {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
         $jadwal->forceDelete();
 
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dihapus');

@@ -50,12 +50,12 @@
                     <p class="text-lg font-semibold text-gray-900">{{ number_format($nilai->nilai_akhir, 2) }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500">Indeks</p>
+                    <p class="text-sm text-gray-500">Bobot / Indeks</p>
                     <p class="text-lg font-semibold text-gray-900">{{ number_format($nilai->indeks ?? 0, 2) }}</p>
                 </div>
                 <div class="sm:col-span-2">
                     <p class="text-sm text-gray-500">Grade</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $nilai->grade }}</p>
+                    <span class="inline-flex items-center rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-2xl font-bold text-emerald-700">{{ $nilai->grade }}</span>
                 </div>
             </div>
         </div>

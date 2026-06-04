@@ -10,14 +10,16 @@ class MahasiswaFactory extends Factory
     {
         $jurusan = ['Informatika', 'Sistem Informasi', 'Teknik Komputer'];
 
+        $faker = fake('id_ID');
+
         return [
-            'nim' => $this->faker->unique()->numerify('04112021###'),
-            'nama' => $this->faker->name('male'),
-            'email' => $this->faker->unique()->safeEmail(),
-            'jurusan' => $this->faker->randomElement($jurusan),
-            'angkatan' => $this->faker->randomElement(['2021', '2022', '2023', '2024']),
-            'alamat' => $this->faker->address(),
-            'no_telepon' => $this->faker->phoneNumber(),
+            'nim' => $faker->unique()->numerify('04112021###'),
+            'nama' => $faker->name('male'),
+            'email' => $faker->unique()->safeEmail(),
+            'jurusan' => $faker->randomElement($jurusan),
+            'angkatan' => $faker->randomElement(['2021', '2022', '2023', '2024']),
+            'alamat' => $faker->address(),
+            'no_telepon' => $faker->phoneNumber(),
         ];
     }
 }

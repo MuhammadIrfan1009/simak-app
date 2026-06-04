@@ -4,7 +4,7 @@
         <!-- Header -->
         <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">👨‍🏫 Portal Dosen</h1>
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl flex items-center gap-3"><svg class="h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM12 14c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/></svg> Portal Dosen</h1>
                 <p class="text-sm text-slate-500 mt-1">Selamat datang kembali, <span class="font-bold text-slate-800">{{ auth()->user()->name }}</span>. Kelola kegiatan belajar mengajar Anda di sini.</p>
             </div>
             <div class="flex items-center gap-3">
@@ -95,9 +95,9 @@
                                     </div>
                                 </div>
                                 <div class="mt-3 sm:mt-0 flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-xs self-start sm:self-auto">
-                                    <span>📅 {{ $item->hari }}</span>
+                                    <span class="inline-flex items-center gap-1"><svg class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 19h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1Z"/></svg> {{ $item->hari }}</span>
                                     <span class="text-slate-300">|</span>
-                                    <span>🕒 {{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</span>
+                                    <span class="inline-flex items-center gap-1"><svg class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</span>
                                 </div>
                             </div>
                         @empty

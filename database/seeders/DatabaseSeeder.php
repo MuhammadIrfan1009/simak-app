@@ -94,6 +94,9 @@ class DatabaseSeeder extends Seeder
 
         $allMataKuliahs = MataKuliah::all();
 
+        // Reset nilai data first to prevent stale duplicates from previous seed runs.
+        Nilai::query()->delete();
+
         // Create jadwal
         $hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
         $ruangans = ['Ruang A101', 'Ruang A102', 'Ruang A103', 'Ruang B201', 'Ruang B202'];
