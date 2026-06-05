@@ -3,91 +3,56 @@
 @section('content')
 <div class="py-12">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">➕ Tambah Mahasiswa</h1>
 
-        <form action="{{ route('mahasiswa.store') }}" method="POST" class="card">
+        <x-page-header
+            title="Tambah Mahasiswa"
+            subtitle="Isi data mahasiswa baru dengan lengkap dan benar."
+            :paths="['M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z']"
+        >
+            <a href="{{ route('mahasiswa.index') }}" class="btn btn-secondary">Kembali</a>
+        </x-page-header>
+
+        @if ($errors->any())
+            <div class="mb-6">
+                <x-alert type="error">
+                    <ul class="list-disc pl-4 space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </x-alert>
+            </div>
+        @endif
+
+        <form action="{{ route('mahasiswa.store') }}" method="POST" class="card space-y-6">
             @csrf
 
-            <!-- NIM -->
-            <div class="mb-6">
-                <label for="nim" class="form-label">NIM</label>
-                <input type="text" id="nim" name="nim" class="form-input @error('nim') border-red-500 @enderror"
-                       placeholder="Misal: 04112021001" value="{{ old('nim') }}" required>
-                @error('nim')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <x-form-field name="nim"    label="NIM"           :value="old('nim')"    placeholder="04112021001" required />
+                <x-form-field name="angkatan" label="Angkatan"    :value="old('angkatan')" placeholder="2024"      required />
             </div>
 
-            <!-- Nama -->
-            <div class="mb-6">
-                <label for="nama" class="form-label">Nama Lengkap</label>
-                <input type="text" id="nama" name="nama" class="form-input @error('nama') border-red-500 @enderror"
-                       placeholder="Nama mahasiswa" value="{{ old('nama') }}" required>
-                @error('nama')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+            <x-form-field name="nama"  label="Nama Lengkap"  :value="old('nama')"  placeholder="Nama mahasiswa" required />
+            <x-form-field name="email" label="Email"  type="email" :value="old('email')" placeholder="email@example.com" required />
 
-            <!-- Email -->
-            <div class="mb-6">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" id="email" name="email" class="form-input @error('email') border-red-500 @enderror"
-                       placeholder="email@example.com" value="{{ old('email') }}" required>
-                @error('email')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+            <x-form-field
+                name="jurusan"
+                label="Jurusan"
+                type="select"
+                :value="old('jurusan')"
+                required
+                :options="['Informatika' => 'Informatika', 'Sistem Informasi' => 'Sistem Informasi', 'Teknik Komputer' => 'Teknik Komputer']"
+            />
 
-            <!-- Jurusan -->
-            <div class="mb-6">
-                <label for="jurusan" class="form-label">Jurusan</label>
-                <select id="jurusan" name="jurusan" class="form-input @error('jurusan') border-red-500 @enderror" required>
-                    <option value="">-- Pilih Jurusan --</option>
-                    <option value="Informatika" {{ old('jurusan') == 'Informatika' ? 'selected' : '' }}>Informatika</option>
-                    <option value="Sistem Informasi" {{ old('jurusan') == 'Sistem Informasi' ? 'selected' : '' }}>Sistem Informasi</option>
-                    <option value="Teknik Komputer" {{ old('jurusan') == 'Teknik Komputer' ? 'selected' : '' }}>Teknik Komputer</option>
-                </select>
-                @error('jurusan')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+            <x-form-field name="alamat"     label="Alamat"      type="textarea" :value="old('alamat')"     placeholder="Alamat lengkap" :rows="3" />
+            <x-form-field name="no_telepon" label="No. Telepon" type="tel"      :value="old('no_telepon')" placeholder="08xx xxxx xxxx" />
 
-            <!-- Angkatan -->
-            <div class="mb-6">
-                <label for="angkatan" class="form-label">Angkatan</label>
-                <input type="text" id="angkatan" name="angkatan" class="form-input @error('angkatan') border-red-500 @enderror"
-                       placeholder="2024" value="{{ old('angkatan') }}" required>
-                @error('angkatan')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Alamat -->
-            <div class="mb-6">
-                <label for="alamat" class="form-label">Alamat</label>
-                <textarea id="alamat" name="alamat" class="form-input @error('alamat') border-red-500 @enderror"
-                          placeholder="Alamat lengkap" rows="3">{{ old('alamat') }}</textarea>
-                @error('alamat')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- No Telepon -->
-            <div class="mb-6">
-                <label for="no_telepon" class="form-label">No. Telepon</label>
-                <input type="tel" id="no_telepon" name="no_telepon" class="form-input @error('no_telepon') border-red-500 @enderror"
-                       placeholder="08xx xxxx xxxx" value="{{ old('no_telepon') }}">
-                @error('no_telepon')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex gap-4">
-                <button type="submit" class="btn btn-primary">✅ Simpan</button>
-                <a href="{{ route('mahasiswa.index') }}" class="btn btn-secondary">❌ Batal</a>
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="btn btn-primary">Simpan</button>
+                <a href="{{ route('mahasiswa.index') }}" class="btn btn-secondary">Batal</a>
             </div>
         </form>
+
     </div>
 </div>
 @endsection

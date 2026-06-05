@@ -3,65 +3,55 @@
 @section('content')
 <div class="py-12">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">✏️ Edit Mata Kuliah</h1>
-                <p class="text-sm text-gray-500">Perbarui data mata kuliah.</p>
-            </div>
+
+        <x-page-header
+            title="Edit Mata Kuliah"
+            subtitle="Perbarui data mata kuliah."
+            :paths="['m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-3.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z']"
+            color="amber"
+        >
+            <a href="{{ route('mata-kuliah.show', $mataKuliah) }}" class="btn btn-secondary">Lihat</a>
             <a href="{{ route('mata-kuliah.index') }}" class="btn btn-secondary">Kembali</a>
-        </div>
+        </x-page-header>
 
         @if ($errors->any())
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <ul class="list-disc pl-5 text-sm text-red-700">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+            <div class="mb-6">
+                <x-alert type="error">
+                    <ul class="list-disc pl-4 space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </x-alert>
             </div>
         @endif
 
-        <form action="{{ route('mata-kuliah.update', $mataKuliah) }}" method="POST" class="card">
+        <form action="{{ route('mata-kuliah.update', $mataKuliah) }}" method="POST" class="card space-y-6">
             @csrf
             @method('PUT')
 
-            <div class="grid gap-6">
-                <div>
-                    <label for="kode_mk" class="form-label">Kode Mata Kuliah</label>
-                    <input type="text" id="kode_mk" name="kode_mk" value="{{ old('kode_mk', $mataKuliah->kode_mk) }}" class="form-input @error('kode_mk') border-red-500 @enderror" required>
-                </div>
-
-                <div>
-                    <label for="nama_mk" class="form-label">Nama Mata Kuliah</label>
-                    <input type="text" id="nama_mk" name="nama_mk" value="{{ old('nama_mk', $mataKuliah->nama_mk) }}" class="form-input @error('nama_mk') border-red-500 @enderror" required>
-                </div>
-
-                <div>
-                    <label for="sks" class="form-label">SKS</label>
-                    <input type="number" id="sks" name="sks" value="{{ old('sks', $mataKuliah->sks) }}" class="form-input @error('sks') border-red-500 @enderror" min="1" max="4" required>
-                </div>
-
-                <div>
-                    <label for="semester" class="form-label">Semester</label>
-                    <input type="number" id="semester" name="semester" value="{{ old('semester', $mataKuliah->semester) }}" class="form-input @error('semester') border-red-500 @enderror" min="1" max="8" required>
-                </div>
-
-                <div>
-                    <label for="user_id" class="form-label">Dosen Pengampu</label>
-                    <select id="user_id" name="user_id" class="form-input @error('user_id') border-red-500 @enderror" required>
-                        <option value="">-- Pilih Dosen --</option>
-                        @foreach($dosens as $dosen)
-                            <option value="{{ $dosen->id }}" {{ old('user_id', $mataKuliah->user_id) == $dosen->id ? 'selected' : '' }}>{{ $dosen->name }} ({{ $dosen->email }})</option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <x-form-field name="kode_mk"  label="Kode Mata Kuliah" :value="old('kode_mk', $mataKuliah->kode_mk)"   required />
+                <x-form-field name="nama_mk"  label="Nama Mata Kuliah" :value="old('nama_mk', $mataKuliah->nama_mk)"   required />
+                <x-form-field name="sks"      label="SKS"      type="number" :value="old('sks', $mataKuliah->sks)"           required />
+                <x-form-field name="semester" label="Semester" type="number" :value="old('semester', $mataKuliah->semester)" required />
             </div>
 
-            <div class="mt-8 flex gap-4">
+            <x-form-field
+                name="user_id"
+                label="Dosen Pengampu"
+                type="select"
+                :value="old('user_id', $mataKuliah->user_id)"
+                required
+                :options="$dosens->mapWithKeys(fn($d) => [$d->id => $d->name . ' (' . $d->email . ')'])->all()"
+            />
+
+            <div class="flex gap-3 pt-2">
                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                <a href="{{ route('mata-kuliah.show', $mataKuliah) }}" class="btn btn-secondary">Lihat</a>
+                <a href="{{ route('mata-kuliah.show', $mataKuliah) }}" class="btn btn-secondary">Batal</a>
             </div>
         </form>
+
     </div>
 </div>
 @endsection

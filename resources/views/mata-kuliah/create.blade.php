@@ -3,69 +3,52 @@
 @section('content')
 <div class="py-12">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">➕ Tambah Mata Kuliah</h1>
-                <p class="text-sm text-gray-500">Isi data mata kuliah baru di sini.</p>
-            </div>
-            <a href="{{ route('mata-kuliah.index') }}" class="btn btn-secondary">Kembali</a>
-        </div>
 
-        <form action="{{ route('mata-kuliah.store') }}" method="POST" class="card">
+        <x-page-header
+            title="Tambah Mata Kuliah"
+            subtitle="Isi data mata kuliah baru di sini."
+            :paths="['M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253']"
+        >
+            <a href="{{ route('mata-kuliah.index') }}" class="btn btn-secondary">Kembali</a>
+        </x-page-header>
+
+        @if ($errors->any())
+            <div class="mb-6">
+                <x-alert type="error">
+                    <ul class="list-disc pl-4 space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </x-alert>
+            </div>
+        @endif
+
+        <form action="{{ route('mata-kuliah.store') }}" method="POST" class="card space-y-6">
             @csrf
 
-            <div class="grid gap-6">
-                <div>
-                    <label for="kode_mk" class="form-label">Kode Mata Kuliah</label>
-                    <input type="text" id="kode_mk" name="kode_mk" value="{{ old('kode_mk') }}" class="form-input @error('kode_mk') border-red-500 @enderror" placeholder="Contoh: IF101" required>
-                    @error('kode_mk')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="nama_mk" class="form-label">Nama Mata Kuliah</label>
-                    <input type="text" id="nama_mk" name="nama_mk" value="{{ old('nama_mk') }}" class="form-input @error('nama_mk') border-red-500 @enderror" placeholder="Contoh: Pemrograman Web" required>
-                    @error('nama_mk')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="sks" class="form-label">SKS</label>
-                    <input type="number" id="sks" name="sks" value="{{ old('sks') }}" class="form-input @error('sks') border-red-500 @enderror" min="1" max="4" required>
-                    @error('sks')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="semester" class="form-label">Semester</label>
-                    <input type="number" id="semester" name="semester" value="{{ old('semester') }}" class="form-input @error('semester') border-red-500 @enderror" min="1" max="8" required>
-                    @error('semester')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="user_id" class="form-label">Dosen Pengampu</label>
-                    <select id="user_id" name="user_id" class="form-input @error('user_id') border-red-500 @enderror" required>
-                        <option value="">-- Pilih Dosen --</option>
-                        @foreach($dosens as $dosen)
-                            <option value="{{ $dosen->id }}" {{ old('user_id') == $dosen->id ? 'selected' : '' }}>{{ $dosen->name }} ({{ $dosen->email }})</option>
-                        @endforeach
-                    </select>
-                    @error('user_id')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <x-form-field name="kode_mk" label="Kode Mata Kuliah" :value="old('kode_mk')" placeholder="IF101" required />
+                <x-form-field name="nama_mk" label="Nama Mata Kuliah" :value="old('nama_mk')" placeholder="Pemrograman Web" required />
+                <x-form-field name="sks"     label="SKS"      type="number" :value="old('sks')"      required />
+                <x-form-field name="semester" label="Semester" type="number" :value="old('semester')" required />
             </div>
 
-            <div class="mt-8 flex gap-4">
+            <x-form-field
+                name="user_id"
+                label="Dosen Pengampu"
+                type="select"
+                :value="old('user_id')"
+                required
+                :options="$dosens->mapWithKeys(fn($d) => [$d->id => $d->name . ' (' . $d->email . ')'])->all()"
+            />
+
+            <div class="flex gap-3 pt-2">
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 <a href="{{ route('mata-kuliah.index') }}" class="btn btn-secondary">Batal</a>
             </div>
         </form>
+
     </div>
 </div>
 @endsection

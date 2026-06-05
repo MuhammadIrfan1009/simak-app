@@ -6,6 +6,7 @@
     <title>@yield('title', 'SIMAK - Sistem Manajemen Akademik')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+@stack('scripts')
 <body class="bg-[#F8FAFC] font-sans antialiased text-slate-800">
     <div class="flex flex-col md:flex-row min-h-screen">
         
