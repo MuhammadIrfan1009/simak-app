@@ -56,7 +56,6 @@
                         @foreach ($mataKuliahs as $mk)
                             <option value="{{ $mk->kode_mk }} - {{ $mk->nama_mk }}"
                                     data-id="{{ $mk->id }}"
-                                    data-dosen="{{ $mk->dosen->name ?? '' }}"
                                     data-semester="{{ $mk->semester ?? '' }}">
                             </option>
                         @endforeach
@@ -76,9 +75,11 @@
                         <svg class="h-5 w-5 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM12 14c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/>
                         </svg>
+                        {{-- ✅ FIX: value diisi dari auth()->user()->name langsung di Blade --}}
                         <input type="text" id="dosenPengampu"
                                class="w-full border-0 bg-transparent p-0 text-sm text-slate-700 focus:ring-0"
-                               readonly>
+                               readonly
+                               value="{{ auth()->user()->name }}">
                     </div>
                 </div>
 
@@ -140,12 +141,13 @@ function syncHiddenValue(input, hiddenInput, options) {
     return matched;
 }
 
-function updateDosenPengampu() {
+function updateMataKuliah() {
     const input   = document.getElementById('mataKuliahSearch');
     const options = Array.from(document.getElementById('mataKuliahList').options);
     const match   = syncHiddenValue(input, document.getElementById('mataKuliahId'), options);
-    document.getElementById('dosenPengampu').value   = match?.dataset?.dosen    || '';
-    document.getElementById('semesterInput').value   = match?.dataset?.semester || document.getElementById('semesterInput').value || '';
+
+    // ✅ FIX: hanya update semester dari dataset — dosen sudah terisi dari server
+    document.getElementById('semesterInput').value = match?.dataset?.semester || document.getElementById('semesterInput').value || '';
 }
 
 document.getElementById('mahasiswaSearch').addEventListener('input', () => {
@@ -156,10 +158,11 @@ document.getElementById('mahasiswaSearch').addEventListener('input', () => {
     );
 });
 
-document.getElementById('mataKuliahSearch').addEventListener('input', updateDosenPengampu);
+document.getElementById('mataKuliahSearch').addEventListener('input', updateMataKuliah);
 
-updateDosenPengampu();
+updateMataKuliah();
 updateGradePreview();
 </script>
 @endpush
 @endsection
+@extends('layouts.app')

@@ -71,7 +71,7 @@ class NilaiController extends Controller
     {
         abort_unless(auth()->user()->isDosen(), 403);
 
-        $mahasiswas = Mahasiswa::orderBy('nama')->get();
+        $mahasiswas  = Mahasiswa::orderBy('nama')->get();
         $mataKuliahs = MataKuliah::where('user_id', auth()->id())->with('dosen')->get();
 
         return view('nilai.create', compact('mahasiswas', 'mataKuliahs'));
@@ -106,7 +106,7 @@ class NilaiController extends Controller
             $validated['nilai_uas']
         );
 
-        $grade = Nilai::nilaiKeGrade($nilaiAkhir);
+        $grade  = Nilai::nilaiKeGrade($nilaiAkhir);
         $indeks = Nilai::gradeToIndeks($grade);
 
         Nilai::create([
@@ -177,7 +177,7 @@ class NilaiController extends Controller
             $validated['nilai_uas']
         );
 
-        $grade = Nilai::nilaiKeGrade($nilaiAkhir);
+        $grade  = Nilai::nilaiKeGrade($nilaiAkhir);
         $indeks = Nilai::gradeToIndeks($grade);
 
         $nilai->update([
