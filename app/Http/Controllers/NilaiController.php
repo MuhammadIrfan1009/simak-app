@@ -64,9 +64,7 @@ class NilaiController extends Controller
         return view('nilai.index', compact('nilais', 'perPage'));
     }
 
-    /**
-     * Form tambah nilai
-     */
+    
     public function create()
     {
         abort_unless(auth()->user()->isDosen(), 403);
@@ -77,9 +75,7 @@ class NilaiController extends Controller
         return view('nilai.create', compact('mahasiswas', 'mataKuliahs'));
     }
 
-    /**
-     * Simpan nilai baru
-     */
+    
     public function store(Request $request)
     {
         abort_unless(auth()->user()->isDosen(), 403);
@@ -121,9 +117,7 @@ class NilaiController extends Controller
             ->with('success', 'Data nilai berhasil ditambahkan.');
     }
 
-    /**
-     * Tampilkan detail nilai
-     */
+    
     public function show(Nilai $nilai)
     {
         $nilai->load('mahasiswa', 'mataKuliah.dosen');
@@ -146,9 +140,7 @@ class NilaiController extends Controller
         abort(403, 'Unauthorized');
     }
 
-    /**
-     * Form edit nilai
-     */
+    
     public function edit(Nilai $nilai)
     {
         abort_unless($this->currentUserCanManageNilai($nilai), 403);
@@ -158,9 +150,7 @@ class NilaiController extends Controller
         return view('nilai.edit', compact('nilai', 'mataKuliahs'));
     }
 
-    /**
-     * Update data nilai
-     */
+    
     public function update(Request $request, Nilai $nilai)
     {
         abort_unless($this->currentUserCanManageNilai($nilai), 403);
@@ -192,9 +182,7 @@ class NilaiController extends Controller
             ->with('success', 'Data nilai berhasil diperbarui.');
     }
 
-    /**
-     * Hapus nilai
-     */
+    
     public function destroy(Nilai $nilai)
     {
         abort_unless($this->currentUserCanManageNilai($nilai), 403);
@@ -206,9 +194,7 @@ class NilaiController extends Controller
             ->with('success', 'Data nilai berhasil dihapus.');
     }
 
-    /**
-     * Rekap nilai mahasiswa per semester
-     */
+    
     public function rekapNilai(Request $request)
     {
         $mahasiswas = Mahasiswa::orderBy('nama');
@@ -287,9 +273,7 @@ class NilaiController extends Controller
         );
     }
 
-    /**
-     * Export rekap nilai ke PDF
-     */
+    
     public function exportPdf(Request $request)
     {
         $request->validate([

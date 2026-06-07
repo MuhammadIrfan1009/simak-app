@@ -29,7 +29,7 @@
             {{-- Toolbar --}}
             <div class="table-toolbar">
                 <form action="{{ route('mata-kuliah.index') }}" method="GET"
-                      class="flex flex-wrap items-center gap-3 w-full" id="mataKuliahSearchForm">
+                    class="flex flex-wrap items-center gap-3 w-full" id="mataKuliahSearchForm">
                     <input type="hidden" name="sort"      value="{{ request('sort', 'nama_mk') }}">
                     <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
 
@@ -38,8 +38,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
                         </svg>
                         <input type="search" name="q" value="{{ request('q') }}"
-                               data-live-search-form="mataKuliahSearchForm"
-                               placeholder="Cari kode, nama, atau dosen" class="w-full" />
+                            data-live-search-form="mataKuliahSearchForm"
+                            placeholder="Cari kode, nama, atau dosen" class="w-full" />
                     </label>
 
                     <label class="table-control">
