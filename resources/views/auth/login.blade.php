@@ -190,7 +190,8 @@
         }
 
         .field input[type=email],
-        .field input[type=password] {
+        .field input[type=password],
+        #password {
             width: 100%;
             padding: 11px 12px 11px 38px;
             border: 1.5px solid #EAECF0;
@@ -203,6 +204,29 @@
             transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
             -webkit-appearance: none;
         }
+
+        /* Padding kanan untuk tombol mata */
+        #password { padding-right: 40px; }
+
+        .eye-btn {
+            position: absolute;
+            right: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #C4C9D4;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            border-radius: 4px;
+            transition: color 0.15s;
+            line-height: 0;
+            z-index: 2;
+        }
+
+        .eye-btn:hover { color: #4F46C8; }
 
         .field input:focus {
             border-color: #4F46C8;
@@ -312,6 +336,7 @@
         }
 
         @media (max-width: 700px) { .lp { display: none; } }
+
     </style>
 
     <div style="display:flex;min-height:100vh;width:100%;">
@@ -440,6 +465,16 @@
                             </span>
                             <input id="password" type="password" name="password"
                                 placeholder="••••••••" required autocomplete="current-password"/>
+                            <button type="button" class="eye-btn" id="togglePassword" aria-label="Tampilkan password">
+                                <svg id="eyeShow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <svg id="eyeHide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                </svg>
+                            </button>
                         </div>
                         @error('password')<p class="field-error">{{ $message }}</p>@enderror
                     </div>
@@ -467,4 +502,18 @@
         </div>
 
     </div>
+
+    <script>
+        const pwInput  = document.getElementById('password');
+        const eyeShow  = document.getElementById('eyeShow');
+        const eyeHide  = document.getElementById('eyeHide');
+
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const visible = pwInput.type === 'text';
+            pwInput.type       = visible ? 'password' : 'text';
+            eyeShow.style.display = visible ? ''     : 'none';
+            eyeHide.style.display = visible ? 'none' : '';
+            this.setAttribute('aria-label', visible ? 'Tampilkan password' : 'Sembunyikan password');
+        });
+    </script>
 </x-guest-layout>
